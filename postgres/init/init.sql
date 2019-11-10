@@ -1,0 +1,27 @@
+CREATE SCHEMA ncdc_data;
+CREATE TABLE ncdc_data.results (
+   id VARCHAR NOT NULL,
+   year INTEGER NOT NULL,
+   month INTEGER NOT NULL,
+   day INTEGER NOT NULL,
+   hour INTEGER,
+   p_src VARCHAR,
+   np_src VARCHAR,
+   lat INTEGER,
+   lon INTEGER,
+   lvltyp1 VARCHAR,
+   lvltyp2 VARCHAR,
+   press INTEGER,
+   pflag VARCHAR,
+   gph INTEGER,
+   zflag VARCHAR,
+   temp INTEGER,
+   tflag VARCHAR,
+   rh INTEGER,
+   dpdp INTEGER,
+   wdir INTEGER,
+   wspd INTEGER,
+   reltime_hh INTEGER,
+   reltime_mm INTEGER,
+   etime INTEGER
+);
