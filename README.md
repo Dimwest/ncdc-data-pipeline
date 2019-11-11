@@ -23,7 +23,7 @@ Postgres container: `docker exec -it results-db /bin/bash`
 
 ### Run Python ETL in container
 
-`python3 main.py`
+`python3 main.py run_pipeline --config_path './config.yml'`
 
 As described on the diagram, the Python ETL performs the following actions:
 

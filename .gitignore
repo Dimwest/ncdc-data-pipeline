@@ -18,6 +18,6 @@ venv/
 .idea/
 .vscode/
 
-# CSV extracts directory
+# Extracted files
 postgres/csv_extracts
-python-etl/*.sql
+python_etl/tmp/*
