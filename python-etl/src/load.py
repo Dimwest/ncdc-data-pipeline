@@ -158,6 +158,7 @@ def generate_copy_queries(params: Dict[str, str],
             f"SELECT max({partition_col}) as max_alt "
             f"FROM {environ['POSTGRES_SCHEMA']}.{environ['POSTGRES_TABLE']}")
         partition_max = cur.fetchone()[0]
+    logger.info(f"Fetched max value for partition column {partition_col}: {partition_max}")
 
     # Generate the list of values used to create data chunks
     chunks = [x for x in range(0, partition_max+partitions_size, partitions_size)]
