@@ -9,3 +9,5 @@ partition_col: "gph"
 partitions_size: 1000
 prefix: "ncdc_data"
 delimiter: ","
+insert_chunksize: 200000
+header: 1

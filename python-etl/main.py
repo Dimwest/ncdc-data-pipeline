@@ -6,7 +6,8 @@ from fire import Fire
 
 
 class NcdcPipeline:
-    def run_pipeline(self, config_path: str) -> None:
+    @staticmethod
+    def run_pipeline(config_path: str) -> None:
 
         """
         Runs the entire NCDC data pipeline
@@ -20,11 +21,12 @@ class NcdcPipeline:
             conf = yaml.load(f)
         params = get_params_from_env()
 
-        # Download, extract and delete .zip files
-        filenames = download_zip_files(conf["urls"])
-
-        # Transform records and load them into Postgres using COPY FROM
-        insert_records(params=params, records=parse_txt_files(filenames))
+        # # Download, extract and delete .zip files
+        # filenames = download_zip_files(conf["urls"])
+        #
+        # # Transform records and load them into Postgres using COPY FROM
+        # insert_records(params=params, records=parse_txt_files(filenames),
+        #                chunksize=conf["insert_chunksize"])
 
         # Prepare and execute COPY TO query exporting data to partitioned .csv files
         generate_csv_files(
@@ -33,7 +35,7 @@ class NcdcPipeline:
             partitions_size=conf["partitions_size"],
             prefix=conf["prefix"],
             delimiter=conf["delimiter"],
-            header=True,
+            header=conf["header"]
         )
 
 

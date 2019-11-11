@@ -161,12 +161,14 @@ def generate_csv_files(
 
     # Get the max value from the partition column specified
     logger.info(f"Fetching max value for partition column {partition_col} ...")
-    with get_cursor(params) as cur:
-        cur.execute(
-            f"SELECT max({partition_col}) as max_alt "
-            f"FROM {environ['POSTGRES_SCHEMA']}.{environ['POSTGRES_TABLE']}"
-        )
-        partition_max = cur.fetchone()[0]
+    # with get_cursor(params) as cur:
+    #     cur.execute(
+    #         f"SELECT max({partition_col}) as max_alt "
+    #         f"FROM {environ['POSTGRES_SCHEMA']}.{environ['POSTGRES_TABLE']}"
+    #     )
+    #     partition_max = cur.fetchone()[0]
+
+    partition_max = 2000
     logger.info(
         f"Fetched max value for partition column {partition_col}: {partition_max}"
     )
