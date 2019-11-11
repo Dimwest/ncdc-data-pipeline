@@ -7,5 +7,5 @@ urls: [
 ]
 partition_col: "gph"
 partitions_size: 1000
-prefix: ncdc_data
+prefix: "ncdc_data"
 delimiter: ","
