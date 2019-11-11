@@ -21,12 +21,12 @@ class NcdcPipeline:
             conf = yaml.load(f)
         params = get_params_from_env()
 
-        # # Download, extract and delete .zip files
-        # filenames = download_zip_files(conf["urls"])
-        #
-        # # Transform records and load them into Postgres using COPY FROM
-        # insert_records(params=params, records=parse_txt_files(filenames),
-        #                chunksize=conf["insert_chunksize"])
+        # Download, extract and delete .zip files
+        filenames = download_zip_files(conf["urls"])
+
+        # Transform records and load them into Postgres using COPY FROM
+        insert_records(params=params, records=parse_txt_files(filenames),
+                       chunksize=conf["insert_chunksize"])
 
         # Prepare and execute COPY TO query exporting data to partitioned .csv files
         generate_csv_files(
