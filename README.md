@@ -47,11 +47,7 @@ Results are yielded to limit memory usage.
 #### load.py
 
 - Records insertion
-- Generation of COPY queries to an SQL file 
-
-Note: the COPY queries are stored in a .sql file in the Python container but have to be applied manually,
-due to an issue I encountered with files creation when running the COPY TO command 
-from the Python container to Postgres.
+- Creation of partitioned .csv files
 
 ### Connect to Postgres database in container
 
@@ -65,6 +61,5 @@ from the Python container to Postgres.
 
 - [ ] Unit, integration and end-to-end testing
 - [ ] Refactoring, better exception handling, corrupted or errored data handling
-- [ ] Find a way to execute the COPY TO directly from the Python container
 - [ ] Replacement of null values (e.g. -9999, -8888)
 
