@@ -1,5 +1,6 @@
 import logging
 from time import time
+from typing import Callable
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -20,7 +21,14 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 
-def with_logging(fn):
+def with_logging(fn: Callable) -> Callable:
+
+    """
+    Simple logging decorator
+
+    :param fn: function to decorate
+    :return:
+    """
 
     def wrapper(*args, **kwargs):
         logger.info(f"Entering {fn.__name__} ...")

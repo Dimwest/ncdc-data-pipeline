@@ -1,0 +1,11 @@
+urls: [
+    "https://www1.ncdc.noaa.gov/pub/data/igra/data/data-por/USM00070261-data.txt.zip",
+    "https://www1.ncdc.noaa.gov/pub/data/igra/data/data-por/USM00070219-data.txt.zip",
+    "https://www1.ncdc.noaa.gov/pub/data/igra/data/data-por/USM00070361-data.txt.zip",
+    "https://www1.ncdc.noaa.gov/pub/data/igra/data/data-por/USM00070308-data.txt.zip",
+    "https://www1.ncdc.noaa.gov/pub/data/igra/data/data-por/USM00070398-data.txt.zip"
+]
+partition_col: "gph"
+partitions_size: 1000
+prefix: ncdc_data
+delimiter: ","

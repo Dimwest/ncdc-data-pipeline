@@ -18,7 +18,7 @@ def download_zip_file(url: str) -> str:
     :return: extracted file name
     """
 
-    local_filename = url.split('/')[-1]
+    local_filename = f"tmp/{url.split('/')[-1]}"
 
     # Downloading ZIP file
     logger.info(f"Downloading ZIP file from {url} into local file '{local_filename}' ...")

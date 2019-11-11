@@ -17,7 +17,3 @@ venv/
 .DS_Store
 .idea/
 .vscode/
-
-# CSV extracts directory
-postgres/csv_extracts
-python-etl/*.sql

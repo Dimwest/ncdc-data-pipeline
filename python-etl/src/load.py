@@ -1,6 +1,6 @@
 import psycopg2
 from psycopg2.extensions import connection, cursor
-from os import environ, getcwd, system
+from os import environ
 from typing import Dict, Iterator
 from src.log import logger, with_logging
 from contextlib import contextmanager
@@ -49,9 +49,10 @@ def get_connection(params: Dict[str, str]) -> connection:
         yield conn
     except psycopg2.Error as e:
         logger.error(f"Psycopg2 driver error: {e}")
+        raise e
     except Exception as e:
-        print(params)
         logger.error(f"{str(type(e))} during database operation: {e}")
+        raise e
     finally:
         # Close database connection.
         logger.debug("Closing database connection")
@@ -131,17 +132,16 @@ def insert_records(params: Dict[str, str],
         logger.info(f"Successfully wrote last data chunk !")
 
 
+@with_logging
 def generate_copy_queries(params: Dict[str, str],
                           partition_col: str,
                           partitions_size: int,
                           prefix: str,
                           delimiter: str=',',
-                          header: bool=True,
-                          sql_file: str="copy_queries.sql") -> None:
+                          header: bool=True) -> None:
 
     """
-    Generates psql's \COPY queries in a .sql file, which can then be used to generate
-    properly partitioned data in .csv files.
+    Generates and executes COPY TO queries creating partitioned CSV files.
 
     :param params: database connection parameters dictionary
     :param partition_col: name of the integer column to partition data by
@@ -149,32 +149,31 @@ def generate_copy_queries(params: Dict[str, str],
     :param prefix: prefix given to the .csv files created
     :param delimiter: delimiter used when generating .csv files
     :param header: whether the header should be included in .csv files or not
-    :param sql_file: name of the
     """
 
     # Get the max value from the partition column specified
+    logger.info(f"Fetching max value for partition column {partition_col} ...")
     with get_cursor(params) as cur:
         cur.execute(
             f"SELECT max({partition_col}) as max_alt "
             f"FROM {environ['POSTGRES_SCHEMA']}.{environ['POSTGRES_TABLE']}")
         partition_max = cur.fetchone()[0]
+    logger.info(f"Fetched max value for partition column {partition_col}: {partition_max}")
 
     # Generate the list of values used to create data chunks
     chunks = [x for x in range(0, partition_max+partitions_size, partitions_size)]
 
-    # For each value in chunks list, dynamically generate a COPY query and store it in
-    # the output .sql file
+    # For each value in chunks list, dynamically generate a COPY query and execute it
     for i, val in enumerate(chunks):
         if i < len(chunks) - 1:
+
             outfile = f"/tmp/{prefix}_{val}_{chunks[i+1]}.csv"
 
-            q = f"SELECT * FROM {environ['POSTGRES_SCHEMA']}.{environ['POSTGRES_TABLE']} " \
-                f"WHERE {partition_col} >= {val} AND {partition_col} < {chunks[i+1]}"
+            q = f"COPY (SELECT * FROM {environ['POSTGRES_SCHEMA']}.{environ['POSTGRES_TABLE']} WHERE " \
+                f"{partition_col} >= {val} AND {partition_col} < {chunks[i+1]}) " \
+                f"TO \'{outfile}\' CSV DELIMITER \'{delimiter}\' {'HEADER' if header else ''};"
 
-            q = f"\COPY ({q}) TO '{outfile}' " \
-                f"CSV DELIMITER '{delimiter}' {'HEADER' if header else ''};\n"
-
-            with open(sql_file, "a+") as f:
-                f.write(q)
-
-            logger.info(f"Wrote copy query {q} to {sql_file}")
+            logger.info(f"Running COPY query: {q}")
+            with open(outfile, "w+") as f:
+                with get_cursor(params) as cur:
+                    cur.copy_expert(q, f)
