@@ -42,7 +42,7 @@ def parse_header(header: str) -> Dict[str, str]:
         "p_src": header[37:45],
         "np_src": header[46:54],
         "lat": header[55:62],
-        "lon": header[63:71]
+        "lon": header[63:71],
     }
 
 
@@ -87,7 +87,7 @@ def parse_data_record(data: str) -> Dict[str, str]:
         "rh": data[28:33],
         "dpdp": data[34:39],
         "wdir": data[40:45],
-        "wspd": data[46:51]
+        "wspd": data[46:51],
     }
 
 
@@ -119,8 +119,24 @@ def transform_record(record: Dict[str, str]) -> str:
 
     # Convert string values into integers, handle rare cases of empty string data by replacing
     # with Postgres' COPY command's default null value "\\N"
-    to_int = ["year", "month", "day", "hour", "lat", "lon", "reltime_hh", "reltime_mm",
-              "lvltyp1", "lvltyp2", "etime", "temp", "rh", "dpdp", "wdir", "wspd"]
+    to_int = [
+        "year",
+        "month",
+        "day",
+        "hour",
+        "lat",
+        "lon",
+        "reltime_hh",
+        "reltime_mm",
+        "lvltyp1",
+        "lvltyp2",
+        "etime",
+        "temp",
+        "rh",
+        "dpdp",
+        "wdir",
+        "wspd",
+    ]
     for c in to_int:
         try:
             record[c] = int(record[c])
@@ -148,11 +164,13 @@ def dict_to_str(r: Dict) -> str:
     :return: a string compliant with Postgres' COPY command format
     """
 
-    io_str = f"{r['id']}\t{r['year']}\t{r['month']}\t{r['day']}\t{r['hour']}\t" \
-             f"{r['p_src']}\t{r['np_src']}\t{r['lat']}\t{r['lon']}\t{r['lvltyp1']}\t" \
-             f"{r['lvltyp2']}\t{r['press']}\t{r['pflag']}\t{r['gph']}\t{r['zflag']}\t{r['temp']}\t" \
-             f"{r['tflag']}\t{r['rh']}\t{r['dpdp']}\t{r['wdir']}\t{r['wspd']}\t{r['reltime_hh']}\t" \
-             f"{r['reltime_mm']}\t{r['etime']}\n"
+    io_str = (
+        f"{r['id']}\t{r['year']}\t{r['month']}\t{r['day']}\t{r['hour']}\t"
+        f"{r['p_src']}\t{r['np_src']}\t{r['lat']}\t{r['lon']}\t{r['lvltyp1']}\t"
+        f"{r['lvltyp2']}\t{r['press']}\t{r['pflag']}\t{r['gph']}\t{r['zflag']}\t{r['temp']}\t"
+        f"{r['tflag']}\t{r['rh']}\t{r['dpdp']}\t{r['wdir']}\t{r['wspd']}\t{r['reltime_hh']}\t"
+        f"{r['reltime_mm']}\t{r['etime']}\n"
+    )
 
     return io_str
 
@@ -169,7 +187,7 @@ def parse_txt_files(paths: List[str]) -> Iterator[str]:
     """
 
     for p in paths:
-        with open(p, 'r') as f:
+        with open(p, "r") as f:
             for line in f:
                 if line.startswith("#"):
                     header = parse_header(line)

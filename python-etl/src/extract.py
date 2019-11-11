@@ -21,10 +21,14 @@ def download_zip_file(url: str) -> str:
     local_filename = f"tmp/{url.split('/')[-1]}"
 
     # Downloading ZIP file
-    logger.info(f"Downloading ZIP file from {url} into local file '{local_filename}' ...")
-    with requests.get(url, stream=True) as r, open(local_filename, 'wb') as f:
+    logger.info(
+        f"Downloading ZIP file from {url} into local file '{local_filename}' ..."
+    )
+    with requests.get(url, stream=True) as r, open(local_filename, "wb") as f:
         shutil.copyfileobj(r.raw, f)
-    logger.info(f"Download of ZIP data from {url} into local file '{local_filename}' successfull !")
+    logger.info(
+        f"Download of ZIP data from {url} into local file '{local_filename}' successfull !"
+    )
 
     # Extracting ZIP file data
     logger.info(f"Extracting ZIP data from {local_filename} ...")

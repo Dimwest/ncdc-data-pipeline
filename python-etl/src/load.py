@@ -23,14 +23,16 @@ def get_params_from_env() -> Dict[str, str]:
             "password": environ["POSTGRES_PASSWORD"],
             "host": environ["POSTGRES_HOST"],
             "port": environ["POSTGRES_PORT"],
-            "database": environ["POSTGRES_DB"]
+            "database": environ["POSTGRES_DB"],
         }
 
     except KeyError:
-        logger.error(f"Missing environment variable, make sure that "
-                     f"the following environment variables are defined: "
-                     f"POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, "
-                     f"POSTGRES_PORT, POSTGRES_DB")
+        logger.error(
+            f"Missing environment variable, make sure that "
+            f"the following environment variables are defined: "
+            f"POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, "
+            f"POSTGRES_PORT, POSTGRES_DB"
+        )
 
 
 @contextmanager
@@ -60,7 +62,7 @@ def get_connection(params: Dict[str, str]) -> connection:
 
 
 @contextmanager
-def get_cursor(params: Dict[str, str], commit: bool=True) -> cursor:
+def get_cursor(params: Dict[str, str], commit: bool = True) -> cursor:
 
     """
     Get a connection cursor using a context manager.
@@ -86,9 +88,9 @@ def get_cursor(params: Dict[str, str], commit: bool=True) -> cursor:
 
 
 @with_logging
-def insert_records(params: Dict[str, str],
-                   records: Iterator[str],
-                   chunksize: int=100000) -> None:
+def insert_records(
+    params: Dict[str, str], records: Iterator[str], chunksize: int = 100000
+) -> None:
 
     """
     Inserts parsed records into database by chunks of size ‘chunksize‘.
@@ -114,8 +116,12 @@ def insert_records(params: Dict[str, str],
             logger.info(f"Loading chunk of {chunksize} records to Postgres ...")
             f.seek(0)
             with get_cursor(params=params) as cur:
-                cur.copy_from(f, f"{environ['POSTGRES_SCHEMA']}.{environ['POSTGRES_TABLE']}")
-            logger.info(f"Successfully wrote chunk of {chunksize} records to Postgres !")
+                cur.copy_from(
+                    f, f"{environ['POSTGRES_SCHEMA']}.{environ['POSTGRES_TABLE']}"
+                )
+            logger.info(
+                f"Successfully wrote chunk of {chunksize} records to Postgres !"
+            )
 
             # Recreate a new empty StringIO object
             f.close()
@@ -133,12 +139,14 @@ def insert_records(params: Dict[str, str],
 
 
 @with_logging
-def generate_copy_queries(params: Dict[str, str],
-                          partition_col: str,
-                          partitions_size: int,
-                          prefix: str,
-                          delimiter: str=',',
-                          header: bool=True) -> None:
+def generate_csv_files(
+    params: Dict[str, str],
+    partition_col: str,
+    partitions_size: int,
+    prefix: str,
+    delimiter: str = ",",
+    header: bool = True,
+) -> None:
 
     """
     Generates and executes COPY TO queries creating partitioned CSV files.
@@ -156,12 +164,15 @@ def generate_copy_queries(params: Dict[str, str],
     with get_cursor(params) as cur:
         cur.execute(
             f"SELECT max({partition_col}) as max_alt "
-            f"FROM {environ['POSTGRES_SCHEMA']}.{environ['POSTGRES_TABLE']}")
+            f"FROM {environ['POSTGRES_SCHEMA']}.{environ['POSTGRES_TABLE']}"
+        )
         partition_max = cur.fetchone()[0]
-    logger.info(f"Fetched max value for partition column {partition_col}: {partition_max}")
+    logger.info(
+        f"Fetched max value for partition column {partition_col}: {partition_max}"
+    )
 
     # Generate the list of values used to create data chunks
-    chunks = [x for x in range(0, partition_max+partitions_size, partitions_size)]
+    chunks = [x for x in range(0, partition_max + partitions_size, partitions_size)]
 
     # For each value in chunks list, dynamically generate a COPY query and execute it
     for i, val in enumerate(chunks):
@@ -169,9 +180,11 @@ def generate_copy_queries(params: Dict[str, str],
 
             outfile = f"/tmp/{prefix}_{val}_{chunks[i+1]}.csv"
 
-            q = f"COPY (SELECT * FROM {environ['POSTGRES_SCHEMA']}.{environ['POSTGRES_TABLE']} WHERE " \
-                f"{partition_col} >= {val} AND {partition_col} < {chunks[i+1]}) " \
-                f"TO \'{outfile}\' CSV DELIMITER \'{delimiter}\' {'HEADER' if header else ''};"
+            q = (
+                f"COPY (SELECT * FROM {environ['POSTGRES_SCHEMA']}.{environ['POSTGRES_TABLE']} WHERE "
+                f"{partition_col} >= {val} AND {partition_col} < {chunks[i+1]}) "
+                f"TO '{outfile}' CSV DELIMITER '{delimiter}' {'HEADER' if header else ''};"
+            )
 
             logger.info(f"Running COPY query: {q}")
             with open(outfile, "w+") as f:
