@@ -17,7 +17,3 @@ venv/
 .DS_Store
 .idea/
 .vscode/
-
-# Extracted files
-postgres/csv_extracts
-python_etl/tmp/*
